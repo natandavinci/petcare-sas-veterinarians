@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'usuarios/css/login.css' %}">
+{% endblock %}
+
 {% block layout %}
     <main class="page">
         <aside class="hero">
@@ -26,7 +30,11 @@
                     Crie sua <em>conta</em>.
                 </h1>
 
-                <form method="post" action="#">
+                {% if messages %}
+                    {% for message in messages %}<div class="mb-6 rounded-xl p-4 {{ message.tags }}">{{ message }}</div>{% endfor %}
+                {% endif %}
+
+                <form method="post" action="{% url 'cadastro' %}">{% csrf_token %}
                     <div class="field">
                         <label for="username">Nome de usuario</label>
                         <div class="input-wrap">

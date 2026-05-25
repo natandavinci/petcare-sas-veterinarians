@@ -106,3 +106,25 @@ def paciente(request, pk):
         consulta.save()
 
         return redirect('paciente', pk)
+    
+    from .agent import TriagemAgent
+from agno.agent import RunOutput
+from django.http import JsonResponse
+
+def triagem(request, id_cliente):
+    frequencia_cardiaca = request.POST.get('frequencia_cardiaca')
+    frequencia_respiratoria = request.POST.get('frequencia_respiratoria')
+    temperatura = request.POST.get('temperatura')
+    peso = request.POST.get('peso')
+    queixa = request.POST.get('queixa')
+    observacao = request.POST.get('observacao')
+
+    cliente = get_object_or_404(Cliente, id=id_cliente)
+    agent = TriagemAgent.build_agent()
+    prompt = TriagemAgent.mount_prompt(frequencia_cardiaca, frequencia_respiratoria, temperatura, peso, queixa, observacao)
+
+    response: RunOutput = agent.run(prompt)
+    result = response.content.cor
+    cliente.triagem = result
+    cliente.save()
+    return redirect('paciente', id_cliente)

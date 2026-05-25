@@ -106,61 +106,63 @@
         </div>
         <div class="timeline" id="timeline">
             
-                <article class="consult">
-                    
-                        <video class="consult-video"
-                                controls
-                                preload="metadata"
-                                playsinline
-                                src="#">
-                            Seu navegador nao suporta reproducao de video.
-                        </video>
-                    
-                    <div class="consult-body">
-                        <div class="consult-head">
-                            <div>
-                                <h3><a href="">Consulta · data</a></h3>
-                            </div>
-                            
+               {% for consulta in consultas %}
+    <article class="consult">
+        {% if consulta.video %}
+            <video class="consult-video"
+                    controls
+                    preload="metadata"
+                    playsinline
+                    src="{{ consulta.video.url }}">
+                Seu navegador nao suporta reproducao de video.
+            </video>
+        {% endif %}
+        <div class="consult-body">
+            <div class="consult-head">
+                <div>
+                    <h3><a href="{% url 'consulta' consulta.pk %}">Consulta · {{ consulta.data|date:'d/m/Y' }}</a></h3>
+                </div>
+                
+            </div>
+            <p class="consult-notes">
+                {{consulta.observacao}}
+            </p>
+            <div class="exams">
+                <span class="exams-label">
+                    <svg viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.6">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Z" />
+                        <path d="M14 2v6h6M9 13h6M9 17h6" />
+                    </svg>
+                Exames anexados</span>
+                <a href="{{ consulta.pdf.url }}" target="_blank">
+                    <div class="exam">
+                        <div class="ico">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Z" stroke="currentColor" stroke-width="1.5" fill="none" />
+                                <text x="7" y="17" font-size="6" font-family="monospace" font-weight="700" fill="currentColor">PDF</text>
+                            </svg>
                         </div>
-                        <p class="consult-notes">
-                           observacao aqui
-                        </p>
-                        <div class="exams">
-                            <span class="exams-label">
-                                <svg viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="1.6">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Z" />
-                                    <path d="M14 2v6h6M9 13h6M9 17h6" />
-                                </svg>
-                            Exames anexados</span>
-                            <a href="{{ consulta.pdf.url }}" target="_blank">
-                                <div class="exam">
-                                    <div class="ico">
-                                        <svg viewBox="0 0 24 24" fill="currentColor">
-                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Z" stroke="currentColor" stroke-width="1.5" fill="none" />
-                                            <text x="7" y="17" font-size="6" font-family="monospace" font-weight="700" fill="currentColor">PDF</text>
-                                        </svg>
-                                    </div>
-                                    <div class="nm">
-                                        Nome pdf
-                                    </div>
-                                    <button class="dl" type="button">
-                                        <svg viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="1.6">
-                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </a>
+                        <div class="nm">
+                            {{consulta.pdf.name}}
                         </div>
-                        
+                        <button class="dl" type="button">
+                            <svg viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.6">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
+                            </svg>
+                        </button>
                     </div>
-                </article>
+                </a>
+            </div>
+            
+        </div>
+    </article>
+{% endfor %}
             
         </div>
     </main>
@@ -285,53 +287,72 @@
                               margin-bottom:10px">Classificacao de urgencia</label>
                 
             </div>
-            <div>
-                <form method="post" action="#">
-                    {% csrf_token %}
-                <label style="font-family:var(--mono);
-                              font-size:10px;
-                              letter-spacing:0.1em;
-                              text-transform:uppercase;
-                              color:var(--ink-mute);
-                              display:block;
-                              margin-bottom:10px">Sinais vitais</label>
-                <div class="vital-grid">
-                    <div class="vital">
-                        <label>Frequencia cardiaca</label>
-                        <div class="suffix" data-unit="bpm">
-                            <input type="number" name="frequencia_cardiaca" value="98">
+                    <div>
+        <form method="post" action="{% url 'triagem' cliente.id %}">{% csrf_token %}
+                        <label style="font-family:var(--mono);
+                                    font-size:10px;
+                                    letter-spacing:0.1em;
+                                    text-transform:uppercase;
+                                    color:var(--ink-mute);
+                                    display:block;
+                                    margin-bottom:10px">Sinais vitais</label>
+                        <div class="vital-grid">
+                            <div class="vital">
+                                <label>Frequencia cardiaca</label>
+                                <div class="suffix" data-unit="bpm">
+                                    <input type="number" name="frequencia_cardiaca" value="98">
+                                </div>
+                            </div>
+                            <div class="vital">
+                                <label>Frequencia respiratoria</label>
+                                <div class="suffix" data-unit="mpm">
+                                    <input type="number" name="frequencia_respiratoria" value="22">
+                                </div>
+                            </div>
+                            <div class="vital">
+                                <label>Temperatura</label>
+                                <div class="suffix" data-unit="°C">
+                                    <input type="number" name="temperatura" step="0.1" value="38.7">
+                                </div>
+                            </div>
+                            <div class="vital">
+                                <label>Peso atual</label>
+                                <div class="suffix" data-unit="kg">
+                                    <input type="number"
+                                            name="peso"
+                                        step="0.1">
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="vital">
-                        <label>Frequencia respiratoria</label>
-                        <div class="suffix" data-unit="mpm">
-                            <input type="number" name="frequencia_respiratoria" value="22">
-                        </div>
+                    <div class="field-block">
+                        <label>Queixa principal do tutor</label>
+                        <textarea name="queixa" placeholder="Ex: vomito desde ontem, recusa de alimento…"></textarea>
                     </div>
-                    <div class="vital">
-                        <label>Temperatura</label>
-                        <div class="suffix" data-unit="°C">
-                            <input type="number" name="temperatura" step="0.1" value="38.7">
-                        </div>
-                    </div>
-                    <div class="vital">
-                        <label>Peso atual</label>
-                        <div class="suffix" data-unit="kg">
-                            <input type="number"
-                                    name="peso"
-                                   step="0.1">
-                        </div>
-                    </div>
-                </div>
+                    <div class="field-block">
+                        <label>Observacoes da triagem</label>
+                        <textarea name="observacao" placeholder="Estado geral, mucosas, hidratacao…"></textarea>
+                    </div>  
+                    {% if cliente.triagem %}
+            <div class="urgency-row">
+                <label class="urgency u1 opacity-30 {% if cliente.triagem == 'verde' %}opacity-100{% endif %}">
+                    
+                    <span class="dt"></span><b>Verde</b>
+                </label>
+                <label class="urgency u2 opacity-30 {% if cliente.triagem == 'amarelo' %}opacity-100{% endif %}">
+
+                    <span class="dt"></span><b>Amarelo</b>
+                </label>
+                <label class="urgency u3 opacity-30 {% if cliente.triagem == 'laranja' %}opacity-100{% endif %}">
+            
+                    <span class="dt"></span><b>Laranja</b>
+                </label>
+                <label class="urgency u4 opacity-30 {% if cliente.triagem == 'vermelho' %}opacity-100{% endif %}">
+                
+                    <span class="dt"></span><b>Vermelho</b>
+                </label>
             </div>
-            <div class="field-block">
-                <label>Queixa principal do tutor</label>
-                <textarea name="queixa" placeholder="Ex: vomito desde ontem, recusa de alimento…"></textarea>
-            </div>
-            <div class="field-block">
-                <label>Observacoes da triagem</label>
-                <textarea name="observacao" placeholder="Estado geral, mucosas, hidratacao…"></textarea>
-            </div>  
+        {% endif %}
             
         </div>
         

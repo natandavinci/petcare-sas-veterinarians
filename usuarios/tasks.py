@@ -32,3 +32,15 @@ def ocr_and_markdown_file(id_consulta):
     consulta.ocr_pdf = texto
     consulta.save()
     return 'Ok'
+
+from .agent import SummaryAgent, ExamAnalysisAgent
+def summary_and_exam_analysis(id_consulta):
+    consulta = get_object_or_404(Consulta, id=id_consulta)
+    summary_agent = SummaryAgent()
+    resumo = summary_agent.run(consulta.transcricao)
+    consulta.resumo = resumo.summaries
+    exam_analysis_agent = ExamAnalysisAgent()
+    analise_exames = exam_analysis_agent.run(consulta.ocr_pdf)
+    consulta.analise_exames = analise_exames.analyses
+    consulta.save()
+    return 'Ok'

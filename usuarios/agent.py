@@ -37,3 +37,53 @@ class TriagemAgent:
             Queixa: {queixa}
             Observacao: {observacao}
         """
+    
+#LNGCHAIN
+from langchain_openai import ChatOpenAI
+from django.conf import settings
+from abc import abstractmethod
+from langchain_core.prompts import ChatPromptTemplate
+from prompts.prompt import SUMMARY_PROMPT, EXAM_ANALYSIS_PROMPT
+
+class Summaries(BaseModel):
+    summaries: str = Field(description='Resumo')
+
+class ExamAnalyses(BaseModel):
+    analyses: list[str] = Field(description='Lista de análises')
+
+class BaseAgent:
+    llm = ChatOpenAI(model_name='gpt-5-mini', openai_api_key=settings.OPENAI_API_KEY)
+    language: str = 'pt-br'
+    audience: str = 'Veterinario'
+
+    @abstractmethod
+    def _prompt(self): ...
+
+    @abstractmethod
+    def run(self): ...
+
+class SummaryAgent(BaseAgent):
+    def _prompt(self):
+        prompt = ChatPromptTemplate.from_messages([
+            ('system', SUMMARY_PROMPT),
+            ('human', 'language: {language} | audience: {audience}\nUse a transcrição abaixo: {transcription}')])
+
+        return prompt
+    
+    def run(self, transcription):
+        chain = self._prompt() | self.llm.with_structured_output(Summaries)
+        return chain.invoke({'transcription': transcription, 'language': self.language, 'audience': self.audience})
+
+class ExamAnalysisAgent(BaseAgent):
+
+    def _prompt(self):
+        prompt = ChatPromptTemplate.from_messages([
+            ('system', EXAM_ANALYSIS_PROMPT),
+            ('human', 'language: {language} | audience: {audience}\nExames: {exam_results}')])
+
+        return prompt
+    
+    def run(self, exam_results):
+        chain = self._prompt() | self.llm.with_structured_output(ExamAnalyses)
+        return chain.invoke({'exam_results': exam_results, 'language': self.language, 'audience': self.audience})
+        

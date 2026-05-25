@@ -128,3 +128,14 @@ def triagem(request, id_cliente):
     cliente.triagem = result
     cliente.save()
     return redirect('paciente', id_cliente)
+
+def consulta(request, pk):
+    consulta_obj = get_object_or_404(Consulta.objects.select_related("cliente"), pk=pk)
+    return render(
+        request,
+        "consulta.html",
+        {
+            "consulta": consulta_obj,
+            "cliente": consulta_obj.cliente,
+        },
+    )
